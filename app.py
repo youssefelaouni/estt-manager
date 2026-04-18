@@ -272,13 +272,5 @@ def get_modules():
 
 init_db()
 
-@app.route('/setup-admin')
-def setup_admin():
-    conn = get_db()
-    conn.execute("UPDATE users SET username='youssef', password=? WHERE role='admin'",
-                 (hash_pw('9577you'),))
-    conn.commit()
-    conn.close()
-    return 'Admin updated! Delete this route now.'
 if __name__=='__main__':
     init_db(); app.run(debug=True)
