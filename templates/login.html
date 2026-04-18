@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESTT Tétouan — Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{background:#0a0a0f;color:#e8e8f0;font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;}
+        .login-box{width:380px;background:#12121a;border:1px solid #2a2a3a;border-radius:16px;padding:40px;box-shadow:0 25px 80px rgba(0,0,0,0.5);}
+        .logo{text-align:center;margin-bottom:32px;}
+        .logo-icon{font-size:2.5rem;margin-bottom:12px;}
+        .logo h1{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:white;}
+        .logo p{font-size:0.8rem;color:#7070a0;margin-top:4px;}
+        .form-group{margin-bottom:16px;}
+        .form-group label{display:block;font-size:0.82rem;color:#7070a0;margin-bottom:6px;font-weight:500;}
+        .form-group input{width:100%;background:#1a1a26;border:1px solid #2a2a3a;color:#e8e8f0;padding:11px 14px;border-radius:8px;font-size:0.88rem;font-family:'DM Sans',sans-serif;transition:border-color 0.2s;}
+        .form-group input:focus{outline:none;border-color:#6366f1;}
+        .btn{width:100%;background:#6366f1;color:white;border:none;padding:12px;border-radius:8px;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:8px;transition:background 0.2s;}
+        .btn:hover{background:#4f46e5;}
+        .alert{padding:10px 14px;border-radius:8px;margin-bottom:16px;font-size:0.83rem;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;}
+        .hint{text-align:center;font-size:0.75rem;color:#4a4a6a;margin-top:20px;}
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <div class="logo">
+            <div class="logo-icon">🎓</div>
+            <h1>ESTT Tétouan</h1>
+            <p>École Supérieure de Technologie</p>
+        </div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for cat, msg in messages %}
+            <div class="alert">{{ msg }}</div>
+            {% endfor %}
+        {% endwith %}
+        <form method="POST">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" required placeholder="Enter your username" autofocus>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" required placeholder="Enter your password">
+            </div>
+            <button class="btn" type="submit">Sign In →</button>
+        </form>
+        <div class="hint">Admin default: admin / admin123</div>
+    </div>
+</body>
+</html>

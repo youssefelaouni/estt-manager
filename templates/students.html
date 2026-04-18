@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}Students{% endblock %}
+{% block content %}
+
+<div class="flex justify-between items-center mb-20" style="margin-bottom:24px;">
+    <div class="page-header" style="margin:0;">
+        <h1>Students</h1>
+        <p>All enrolled students at ESTT Tétouan</p>
+    </div>
+    <a href="/add" class="btn btn-primary">+ Add Student</a>
+</div>
+
+<!-- SEARCH -->
+<form method="GET" action="/students">
+    <div class="search-bar">
+        <div class="form-group" style="flex:1; margin:0;">
+            <input type="text" name="q" value="{{ search }}" placeholder="Search by name or email..." style="width:100%;">
+        </div>
+        <div class="form-group" style="width:180px; margin:0;">
+            <select name="major">
+                <option value="">All Majors</option>
+                {% for code, info in majors.items() %}
+                <option value="{{ code }}" {% if major==code %}selected{% endif %}>{{ info.icon }} {{ code }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-ghost">Search</button>
+        {% if search or major %}<a href="/students" class="btn btn-ghost">Clear</a>{% endif %}
+    </div>
+</form>
+
+<div class="card">
+    {% if students %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Major</th>
+                <th>Semester</th>
+                <th>Bac</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in students %}
+            <tr>
+                <td style="color:var(--muted);">#{{ s.id }}</td>
+                <td><a href="/student/{{ s.id }}" class="link" style="font-weight:500;">{{ s.full_name }}</a></td>
+                <td style="color:var(--muted); font-size:0.82rem;">{{ s.email }}</td>
+                <td>
+                    <span class="badge badge-{{ s.major_code|lower }}">
+                        {{ majors[s.major_code].icon }} {{ s.major_code }}
+                    </span>
+                </td>
+                <td>S{{ s.semester }}</td>
+                <td style="font-size:0.8rem; color:var(--muted);">{{ s.bac_year }} · {{ s.bac_mention }}</td>
+                <td>
+                    <div class="flex gap-8 items-center">
+                        <a href="/student/{{ s.id }}" class="btn btn-ghost btn-sm">View</a>
+                        <form method="POST" action="/delete/{{ s.id }}" onsubmit="return confirm('Delete {{ s.full_name }}?')">
+                            <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div style="padding:12px 14px; color:var(--muted); font-size:0.8rem; border-top:1px solid var(--border);">
+        {{ students|length }} student(s) found
+    </div>
+    {% else %}
+    <div style="padding:40px; text-align:center; color:var(--muted);">
+        <div style="font-size:2rem;">👥</div>
+        <p style="margin-top:8px;">No students found.</p>
+        {% if search or major %}
+        <a href="/students" class="link" style="margin-top:8px; display:block;">Clear filters</a>
+        {% else %}
+        <a href="/add" class="btn btn-primary" style="margin-top:16px; display:inline-flex;">+ Add First Student</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

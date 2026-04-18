@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% block title %}{{ student.full_name }}{% endblock %}
+{% block content %}
+
+<div class="flex justify-between items-center mb-20" style="margin-bottom:24px;">
+    <a href="/students" class="btn btn-ghost btn-sm">← Back</a>
+    <form method="POST" action="/delete/{{ student.id }}" onsubmit="return confirm('Delete this student?')">
+        <button class="btn btn-danger btn-sm" type="submit">Delete Student</button>
+    </form>
+</div>
+
+<!-- TRANSCRIPT HEADER -->
+<div class="transcript-header">
+    <div>
+        <div class="transcript-name">{{ student.full_name }}</div>
+        <div class="transcript-meta">
+            <span>📧 {{ student.email }}</span>
+            <span>📚 <span class="badge badge-{{ student.major_code|lower }}">{{ majors[student.major_code].icon }} {{ student.major_code }}</span></span>
+            <span>📅 Semester {{ student.semester }}</span>
+            <span>🎓 Bac {{ student.bac_year }} · {{ student.bac_serie }} · {{ student.bac_mention }}</span>
+        </div>
+        <div style="margin-top:12px; font-size:0.82rem; color:var(--muted);">
+            {{ majors[student.major_code].name }}
+        </div>
+    </div>
+    <div>
+        {% if grades %}
+        <div class="big-avg" style="color:
+            {% if sem_avg >= 14 %}#34d399
+            {% elif sem_avg >= 10 %}#fbbf24
+            {% else %}#f87171{% endif %};">
+            {{ sem_avg }}<span style="font-size:1rem; color:var(--muted);">/20</span>
+        </div>
+        <small style="color:var(--muted); font-size:0.8rem; display:block; text-align:right; margin-top:4px;">
+            <span class="badge badge-{{ mention_class }}">{{ mention_text }}</span>
+        </small>
+        <small style="color:var(--muted); font-size:0.75rem; display:block; text-align:right; margin-top:6px;">
+            {% if sem_avg >= 10 %}✅ Semester Validated{% else %}❌ Not Validated{% endif %}
+        </small>
+        {% else %}
+        <span style="color:var(--muted); font-size:0.85rem;">No grades yet</span>
+        {% endif %}
+    </div>
+</div>
+
+<!-- GRADES TABLE -->
+{% if grades %}
+<div class="card">
+    <div class="flex justify-between items-center" style="margin-bottom:16px;">
+        <div class="card-title" style="margin:0;">📋 Module Grades — Semester {{ student.semester }}</div>
+        <div style="font-size:0.75rem; color:var(--muted);">CC1 (15%) · CC2 (15%) · TP (20%) · Final (50%)</div>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Module</th>
+                <th>CC1</th>
+                <th>CC2</th>
+                <th>TP</th>
+                <th>Final Exam</th>
+                <th>Average</th>
+                <th>Mention</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for g in grades %}
+            {% set m = mention(g.average) %}
+            <tr>
+                <td style="font-size:0.83rem; max-width:280px;">{{ g.module }}</td>
+                <td>{{ g.cc1 }}</td>
+                <td>{{ g.cc2 }}</td>
+                <td>{{ g.tp }}</td>
+                <td>{{ g.final_exam }}</td>
+                <td class="avg-cell" style="color:{% if g.average >= 10 %}#34d399{% else %}#f87171{% endif %};">
+                    {{ g.average }}
+                </td>
+                <td><span class="badge badge-{{ m[1] }}">{{ m[0] }}</span></td>
+                <td>
+                    <button onclick="toggleEdit({{ g.id }})" class="btn btn-ghost btn-sm">Edit</button>
+                </td>
+            </tr>
+            <!-- EDIT ROW -->
+            <tr id="edit-{{ g.id }}" style="display:none; background:var(--surface2);">
+                <td colspan="8">
+                    <form method="POST" action="/edit_grade/{{ g.id }}" style="display:flex; gap:12px; align-items:flex-end; padding:8px 0; flex-wrap:wrap;">
+                        <div>
+                            <label style="font-size:0.72rem; color:var(--muted); display:block; margin-bottom:4px;">CC1</label>
+                            <input class="grade-input" type="number" name="cc1" value="{{ g.cc1 }}" min="0" max="20" step="0.25">
+                        </div>
+                        <div>
+                            <label style="font-size:0.72rem; color:var(--muted); display:block; margin-bottom:4px;">CC2</label>
+                            <input class="grade-input" type="number" name="cc2" value="{{ g.cc2 }}" min="0" max="20" step="0.25">
+                        </div>
+                        <div>
+                            <label style="font-size:0.72rem; color:var(--muted); display:block; margin-bottom:4px;">TP</label>
+                            <input class="grade-input" type="number" name="tp" value="{{ g.tp }}" min="0" max="20" step="0.25">
+                        </div>
+                        <div>
+                            <label style="font-size:0.72rem; color:var(--muted); display:block; margin-bottom:4px;">Final Exam</label>
+                            <input class="grade-input" type="number" name="final_exam" value="{{ g.final_exam }}" min="0" max="20" step="0.25">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                        <button type="button" onclick="toggleEdit({{ g.id }})" class="btn btn-ghost btn-sm">Cancel</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<script>
+function toggleEdit(id) {
+    const row = document.getElementById('edit-' + id);
+    row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+}
+</script>
+{% endblock %}

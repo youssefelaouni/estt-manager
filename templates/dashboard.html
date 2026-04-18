@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+
+<div class="page-header">
+    <h1>Dashboard</h1>
+    <p>ESTT Tétouan — Student Management System</p>
+</div>
+
+<!-- STATS -->
+<div class="stats-grid">
+    <div class="stat-card total">
+        <span class="stat-icon">🎓</span>
+        <div class="stat-num">{{ stats.total }}</div>
+        <div class="stat-label">Total Students</div>
+    </div>
+    <div class="stat-card ia">
+        <span class="stat-icon">🤖</span>
+        <div class="stat-num">{{ stats.ia }}</div>
+        <div class="stat-label">IA</div>
+    </div>
+    <div class="stat-card idd">
+        <span class="stat-icon">💻</span>
+        <div class="stat-num">{{ stats.idd }}</div>
+        <div class="stat-label">IDD</div>
+    </div>
+    <div class="stat-card casi">
+        <span class="stat-icon">🔐</span>
+        <div class="stat-num">{{ stats.casi }}</div>
+        <div class="stat-label">CASI</div>
+    </div>
+    <div class="stat-card insem">
+        <span class="stat-icon">⚓</span>
+        <div class="stat-num">{{ stats.insem }}</div>
+        <div class="stat-label">INSEM</div>
+    </div>
+</div>
+
+<div class="two-col">
+    <!-- TOP STUDENTS -->
+    <div class="card">
+        <div class="card-title">🏆 Top Students</div>
+        {% if top %}
+        <table>
+            <thead>
+                <tr><th>#</th><th>Name</th><th>Major</th><th>Average</th></tr>
+            </thead>
+            <tbody>
+                {% for i, s in enumerate(top) %}
+                <tr>
+                    <td style="color:var(--muted);">#{{ i+1 }}</td>
+                    <td><a href="/student/{{ s.id }}" class="link">{{ s.full_name }}</a></td>
+                    <td><span class="badge badge-{{ s.major_code|lower }}">{{ s.major_code }}</span></td>
+                    <td>
+                        {% set m = mention(s.avg) %}
+                        <span class="badge badge-{{ m[1] }}">{{ s.avg }}/20</span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="color:var(--muted); font-size:0.88rem; padding:20px 0;">No students yet. <a href="/add" class="link">Add one →</a></p>
+        {% endif %}
+    </div>
+
+    <!-- RECENT STUDENTS -->
+    <div class="card">
+        <div class="flex justify-between items-center mb-20" style="margin-bottom:12px;">
+            <div class="card-title" style="margin:0;">🕐 Recent Students</div>
+            <a href="/add" class="btn btn-primary btn-sm">+ Add</a>
+        </div>
+        {% if recent %}
+        <table>
+            <thead>
+                <tr><th>Name</th><th>Major</th><th>Sem</th></tr>
+            </thead>
+            <tbody>
+                {% for s in recent %}
+                <tr>
+                    <td><a href="/student/{{ s.id }}" class="link">{{ s.full_name }}</a></td>
+                    <td><span class="badge badge-{{ s.major_code|lower }}">{{ s.major_code }}</span></td>
+                    <td>S{{ s.semester }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="color:var(--muted); font-size:0.88rem; padding:20px 0;">No students yet.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- MAJORS INFO -->
+<div class="card mt-20" style="margin-top:20px;">
+    <div class="card-title">📚 Majors at ESTT Tétouan</div>
+    <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:8px;">
+        {% for code, info in majors.items() %}
+        <div style="padding:16px; background:var(--surface2); border-radius:10px; border-left:3px solid {{ info.color }};">
+            <div style="font-size:1.4rem;">{{ info.icon }}</div>
+            <div style="font-family:'Syne',sans-serif; font-weight:700; color:white; margin-top:8px; font-size:0.88rem;">[{{ code }}]</div>
+            <div style="font-size:0.78rem; color:var(--muted); margin-top:4px;">{{ info.name }}</div>
+            <div style="font-size:0.72rem; color:var(--muted); margin-top:8px;">4 Semesters · 4 Evaluations/Module</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

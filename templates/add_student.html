@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% block title %}Add Student{% endblock %}
+{% block content %}
+
+<div class="page-header">
+    <h1>Add New Student</h1>
+    <p>Fill in the student information and enter grades for each module</p>
+</div>
+
+<form method="POST" action="/add" id="studentForm">
+    <!-- STUDENT INFO -->
+    <div class="card" style="margin-bottom:20px;">
+        <div class="card-title">👤 Student Information</div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" name="full_name" required placeholder="e.g. Ahmed Benali">
+            </div>
+            <div class="form-group">
+                <label>Institutional Email</label>
+                <input type="email" name="email" required placeholder="e.g. a.benali@uae.ac.ma">
+            </div>
+            <div class="form-group">
+                <label>Major</label>
+                <select name="major_code" id="majorSelect" required onchange="loadModules()">
+                    <option value="">— Select Major —</option>
+                    {% for code, info in majors.items() %}
+                    <option value="{{ code }}">{{ info.icon }} [{{ code }}] {{ info.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Semester</label>
+                <select name="semester" id="semesterSelect" required onchange="loadModules()">
+                    <option value="">— Select Semester —</option>
+                    <option value="1">Semester 1</option>
+                    <option value="2">Semester 2</option>
+                    <option value="3">Semester 3</option>
+                    <option value="4">Semester 4</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- BAC INFO -->
+    <div class="card" style="margin-bottom:20px;">
+        <div class="card-title">🎓 Baccalaureate Information</div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Bac Year</label>
+                <input type="number" name="bac_year" required placeholder="e.g. 2024" min="2000" max="2030">
+            </div>
+            <div class="form-group">
+                <label>Bac Series</label>
+                <select name="bac_serie" required>
+                    <option value="">— Select Series —</option>
+                    <option>Sciences Mathematiques (SM)</option>
+                    <option>Sciences Physiques (PC)</option>
+                    <option>Sciences de la Vie et de la Terre (SVT)</option>
+                    <option>Sciences et Technologies Electriques (STE)</option>
+                    <option>Sciences Economiques (Sciences Eco)</option>
+                    <option>Autre</option>
+                </select>
+            </div>
+            <div class="form-group" style="grid-column:1/-1;">
+                <label>Bac Mention</label>
+                <select name="bac_mention" required>
+                    <option value="">— Select Mention —</option>
+                    <option>Passable (10-11.99)</option>
+                    <option>Assez Bien (12-13.99)</option>
+                    <option>Bien (14-15.99)</option>
+                    <option>Tres Bien (16+)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- GRADES SECTION (dynamic) -->
+    <div id="gradesSection" style="display:none;">
+        <div class="card">
+            <div class="card-title">📊 Module Grades</div>
+            <p style="font-size:0.82rem; color:var(--muted); margin-bottom:16px;">
+                Grading formula: <strong style="color:var(--text);">CC1 × 15% + CC2 × 15% + TP × 20% + Final Exam × 50%</strong>
+            </p>
+            <div id="modulesList"></div>
+        </div>
+    </div>
+
+    <div style="margin-top:20px; display:flex; gap:12px;">
+        <button type="submit" class="btn btn-primary" id="submitBtn" style="display:none;">
+            ✓ Add Student
+        </button>
+        <a href="/students" class="btn btn-ghost">Cancel</a>
+    </div>
+</form>
+
+<script>
+async function loadModules() {
+    const major = document.getElementById('majorSelect').value;
+    const sem   = document.getElementById('semesterSelect').value;
+    if (!major || !sem) return;
+
+    const res = await fetch(`/get_modules?major=${major}&semester=${sem}`);
+    const modules = await res.json();
+
+    const section = document.getElementById('gradesSection');
+    const list    = document.getElementById('modulesList');
+
+    if (!modules.length) { section.style.display = 'none'; return; }
+
+    list.innerHTML = '';
+    modules.forEach((mod, i) => {
+        list.innerHTML += `
+        <div class="module-section">
+            <div class="module-name">📘 Module ${i+1}: ${mod}</div>
+            <div class="module-grades">
+                <div>
+                    <label>CC1 (0–20)</label>
+                    <input class="grade-input" type="number" name="cc1_${i}" value="0" min="0" max="20" step="0.25" style="width:100%;" oninput="calcAvg(${i})">
+                </div>
+                <div>
+                    <label>CC2 (0–20)</label>
+                    <input class="grade-input" type="number" name="cc2_${i}" value="0" min="0" max="20" step="0.25" style="width:100%;" oninput="calcAvg(${i})">
+                </div>
+                <div>
+                    <label>TP (0–20)</label>
+                    <input class="grade-input" type="number" name="tp_${i}" value="0" min="0" max="20" step="0.25" style="width:100%;" oninput="calcAvg(${i})">
+                </div>
+                <div>
+                    <label>Final Exam (0–20)</label>
+                    <input class="grade-input" type="number" name="exam_${i}" value="0" min="0" max="20" step="0.25" style="width:100%;" oninput="calcAvg(${i})">
+                </div>
+            </div>
+            <div id="avg_${i}" style="margin-top:10px; font-size:0.82rem; color:var(--muted);">Average: <strong>0.00/20</strong></div>
+        </div>`;
+    });
+
+    section.style.display = 'block';
+    document.getElementById('submitBtn').style.display = 'flex';
+}
+
+function calcAvg(i) {
+    const cc1  = parseFloat(document.querySelector(`[name="cc1_${i}"]`).value) || 0;
+    const cc2  = parseFloat(document.querySelector(`[name="cc2_${i}"]`).value) || 0;
+    const tp   = parseFloat(document.querySelector(`[name="tp_${i}"]`).value)  || 0;
+    const exam = parseFloat(document.querySelector(`[name="exam_${i}"]`).value)|| 0;
+    const avg  = (cc1*0.15 + cc2*0.15 + tp*0.20 + exam*0.50).toFixed(2);
+    const color = avg >= 10 ? '#34d399' : '#f87171';
+    document.getElementById(`avg_${i}`).innerHTML =
+        `Average: <strong style="color:${color};">${avg}/20</strong>`;
+}
+</script>
+{% endblock %}

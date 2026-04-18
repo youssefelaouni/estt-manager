@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Manage Users{% endblock %}
+{% block content %}
+
+<div class="page-header">
+    <h1>User Accounts</h1>
+    <p>Manage login credentials for all users</p>
+</div>
+
+<div class="card">
+    <table>
+        <thead>
+            <tr><th>ID</th><th>Username</th><th>Role</th><th>Linked Student</th><th>Reset Password</th></tr>
+        </thead>
+        <tbody>
+            {% for u in users %}
+            <tr>
+                <td style="color:var(--muted);">#{{ u.id }}</td>
+                <td style="font-weight:500;">{{ u.username }}</td>
+                <td>
+                    {% if u.role == 'admin' %}
+                    <span class="badge badge-casi">👑 Admin</span>
+                    {% else %}
+                    <span class="badge badge-idd">🎓 Student</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if u.full_name %}
+                    <a href="/student/{{ u.student_id }}" class="link">{{ u.full_name }}</a>
+                    <span class="badge badge-{{ u.major_code|lower }}" style="margin-left:6px;">{{ u.major_code }}</span>
+                    {% else %}
+                    <span style="color:var(--muted);">—</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if u.role != 'admin' %}
+                    <form method="POST" action="/reset_password/{{ u.id }}" style="display:flex;gap:8px;align-items:center;">
+                        <input type="password" name="new_password" placeholder="New password" required
+                               style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:6px;font-size:0.82rem;width:150px;">
+                        <button class="btn btn-ghost btn-sm" type="submit">Reset</button>
+                    </form>
+                    {% else %}
+                    <span style="color:var(--muted);font-size:0.8rem;">—</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

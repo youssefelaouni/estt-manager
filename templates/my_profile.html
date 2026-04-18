@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>My Profile — ESTT Tétouan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        :root{--bg:#0a0a0f;--surface:#12121a;--surface2:#1a1a26;--border:#2a2a3a;--text:#e8e8f0;--muted:#7070a0;}
+        body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;}
+        .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 32px;display:flex;justify-content:space-between;align-items:center;}
+        .topbar h2{font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;color:white;}
+        .topbar p{font-size:0.78rem;color:var(--muted);}
+        .logout{background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:6px 14px;border-radius:6px;text-decoration:none;font-size:0.82rem;}
+        .logout:hover{color:white;}
+        .main{max-width:900px;margin:0 auto;padding:32px 20px;}
+        .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px;}
+        .header-card{display:flex;justify-content:space-between;align-items:flex-start;}
+        .name{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:white;}
+        .meta{display:flex;gap:16px;margin-top:8px;flex-wrap:wrap;}
+        .meta span{font-size:0.82rem;color:var(--muted);}
+        .big-avg{font-family:'Syne',sans-serif;font-size:2.8rem;font-weight:800;text-align:right;}
+        .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.72rem;font-weight:600;}
+        .badge-success{background:rgba(16,185,129,0.15);color:#34d399;}
+        .badge-info{background:rgba(99,102,241,0.15);color:#818cf8;}
+        .badge-primary{background:rgba(59,130,246,0.15);color:#60a5fa;}
+        .badge-warning{background:rgba(245,158,11,0.15);color:#fbbf24;}
+        .badge-danger{background:rgba(239,68,68,0.15);color:#f87171;}
+        .badge-ia{background:rgba(99,102,241,0.15);color:#818cf8;}
+        .badge-idd{background:rgba(16,185,129,0.15);color:#34d399;}
+        .badge-casi{background:rgba(239,68,68,0.15);color:#f87171;}
+        .badge-insem{background:rgba(245,158,11,0.15);color:#fbbf24;}
+        .card-title{font-family:'Syne',sans-serif;font-size:0.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:16px;}
+        table{width:100%;border-collapse:collapse;}
+        th{text-align:left;padding:9px 12px;font-size:0.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;border-bottom:1px solid var(--border);}
+        td{padding:11px 12px;font-size:0.85rem;border-bottom:1px solid var(--border);}
+        tr:last-child td{border:none;}
+        tr:hover td{background:var(--surface2);}
+        .avg-cell{font-family:'Syne',sans-serif;font-weight:700;}
+        .divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
+        .summary{display:flex;justify-content:space-between;align-items:center;padding-top:8px;}
+        .summary-label{font-size:0.85rem;color:var(--muted);}
+        .summary-val{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:white;}
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div>
+            <h2>🎓 ESTT Tétouan</h2>
+            <p>Student Portal — {{ session.username }}</p>
+        </div>
+        <a href="/logout" class="logout">Sign Out</a>
+    </div>
+
+    <div class="main">
+        <!-- HEADER -->
+        <div class="card header-card">
+            <div>
+                <div class="name">{{ student.full_name }}</div>
+                <div class="meta">
+                    <span>📧 {{ student.email }}</span>
+                    <span><span class="badge badge-{{ student.major_code|lower }}">{{ majors[student.major_code].icon }} {{ student.major_code }}</span></span>
+                    <span>📅 Semester {{ student.semester }}</span>
+                    <span>🎓 Bac {{ student.bac_year }} · {{ student.bac_serie }} · {{ student.bac_mention }}</span>
+                </div>
+                <div style="margin-top:8px;font-size:0.8rem;color:var(--muted);">{{ majors[student.major_code].name }}</div>
+            </div>
+            {% if grades %}
+            <div style="text-align:right;">
+                <div class="big-avg" style="color:{% if sem_avg>=14 %}#34d399{% elif sem_avg>=10 %}#fbbf24{% else %}#f87171{% endif %};">
+                    {{ sem_avg }}<span style="font-size:1rem;color:var(--muted);">/20</span>
+                </div>
+                <span class="badge badge-{{ mention_class }}">{{ mention_text }}</span>
+                <div style="font-size:0.75rem;color:var(--muted);margin-top:6px;">
+                    {% if sem_avg>=10 %}✅ Validated{% else %}❌ Not Validated{% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- GRADES -->
+        {% if grades %}
+        <div class="card">
+            <div class="card-title">📋 My Grades — Semester {{ student.semester }}</div>
+            <div style="font-size:0.78rem;color:var(--muted);margin-bottom:16px;">CC1 (15%) · CC2 (15%) · TP (20%) · Final Exam (50%)</div>
+            <table>
+                <thead>
+                    <tr><th>Module</th><th>CC1</th><th>CC2</th><th>TP</th><th>Final</th><th>Average</th><th>Mention</th></tr>
+                </thead>
+                <tbody>
+                    {% for g in grades %}
+                    {% set m = mention(g.average) %}
+                    <tr>
+                        <td style="font-size:0.82rem;max-width:260px;">{{ g.module }}</td>
+                        <td>{{ g.cc1 }}</td><td>{{ g.cc2 }}</td><td>{{ g.tp }}</td><td>{{ g.final_exam }}</td>
+                        <td class="avg-cell" style="color:{% if g.average>=10 %}#34d399{% else %}#f87171{% endif %};">{{ g.average }}</td>
+                        <td><span class="badge badge-{{ m[1] }}">{{ m[0] }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <hr class="divider">
+            <div class="summary">
+                <span class="summary-label">Semester Average</span>
+                <span class="summary-val" style="color:{% if sem_avg>=10 %}#34d399{% else %}#f87171{% endif %};">{{ sem_avg }}/20 — {{ mention_text }}</span>
+            </div>
+        </div>
+        {% else %}
+        <div class="card" style="text-align:center;padding:40px;color:var(--muted);">
+            <div style="font-size:2rem;">📋</div>
+            <p style="margin-top:8px;">No grades recorded yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
