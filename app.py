@@ -80,9 +80,9 @@ def init_db():
             FOREIGN KEY(student_id) REFERENCES students(id)
         );
     ''')
-    if not conn.execute("SELECT id FROM users WHERE username='admin'").fetchone():
+    if not conn.execute("SELECT id FROM users WHERE username='youssef'").fetchone():
         conn.execute("INSERT INTO users (username,password,role) VALUES (?,?,?)",
-                     ('admin', hash_pw('admin123'), 'admin'))
+                     ('admin', hash_pw('9577you'), 'admin'))
     conn.commit(); conn.close()
 
 def login_required(f):
