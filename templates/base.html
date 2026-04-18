@@ -186,9 +186,9 @@
                 <span class="icon">➕</span> Add Student
             </a>
         </nav>
-        <div class="sidebar-footer">
-            <p>Built with Flask + SQLite</p>
-            <p style="margin-top:4px;">ESTT Tétouan © 2025</p>
+           <div class="sidebar-footer">
+            <p style="color:var(--text);font-size:0.8rem;">👤 {{ session.username }}</p>
+            <a href="/logout" style="font-size:0.75rem;color:var(--muted);text-decoration:none;margin-top:4px;display:block;">Sign Out →</a>
         </div>
     </aside>
 
